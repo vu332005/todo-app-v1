@@ -1,0 +1,11 @@
+chức năng
+thêm, sửa, xóa , sắp xếp theo hoàn thành/ chưa hoàn thành, ngày tháng 
+interface Task 
+{
+title: string;
+description: string;
+date: string;
+completed: boolean;
+important: boolean;
+id: string; 
+}
