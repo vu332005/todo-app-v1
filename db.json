@@ -1,0 +1,24 @@
+{
+  "todos": [
+    {
+      "id": "1",
+      "title": "hoc react",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "title": "Tập thể dục",
+      "completed": true
+    },
+    {
+      "id": "b244",
+      "title": "dfg",
+      "completed": false
+    },
+    {
+      "id": "70b3",
+      "title": "fdg",
+      "completed": false
+    }
+  ]
+}

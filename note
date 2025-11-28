@@ -9,3 +9,8 @@ completed: boolean;
 important: boolean;
 id: string; 
 }
+
+
+kiến thức:
+- cài vite - tailwindcss
+- localStorage 
