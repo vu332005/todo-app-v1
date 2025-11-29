@@ -6,60 +6,70 @@ import { debounce } from "../ulti";
 import {saveFromStorage, loadFromStorage} from "../ulti"
 import { useTodoContext } from "../contexts/toDoContext";
 import { todoApi } from "../api/todoApi";
-
 const ToDo = () =>{
     const {todoList, setTodoList} = useTodoContext()
 
     const [inputValue, setInputValue] = useState("")
     // -> vì khi component chưa render -> chưa có gì để gắn vào ref -> nên sẽ để là null
     
-    useEffect(() => {
-        const fetchTodos = async () => {
+    useEffect(()=>{
+        const getAll = async () => {
             try {
-                const data = await todoApi.getAll();
-                setTodoList(data);
+                const data  = await todoApi.getAll()
+                setTodoList(data)
             } catch (error) {
-                console.error("Lỗi khi tải danh sách:", error);
+                console.log("lỗi khi tải danh sách: ",error)
             }
-        };
-        fetchTodos();
-    }, [setTodoList]);
+        }
+        getAll()
+    },[])
 
-const addTodo = async () => {
-        if (!inputValue.trim()) return;
+    // dùng async -> hàm ta tạo api trả về những promises -> dùng async để qly
+    const addTodo = async () => {
+        if (!inputValue) return
 
         try {
-            const newTaskData = {
+            const newTask = {
                 title: inputValue,
                 completed: false
-                // Không cần truyền ID, json-server tự tạo id string hoặc number
-            };
-            
-            // Gọi API
-            const savedTask = await todoApi.add(newTaskData);
-            
-            // Cập nhật UI sau khi API thành công
-            setTodoList((prev) => [...prev, savedTask]);
-            setInputValue("");
+            }
+
+            const taskSaved = await todoApi.add(newTask)
+
+            setTodoList(prev => [...prev,taskSaved])
         } catch (error) {
-            alert("Không thể thêm task!");
-        } finally {
+            console.log("không thêm được task mới: ", error)
         }
-    };
-    
-    const deleteTodo = (id: number) => {
+    }
+        
+    const deleteTodo = async(id: number) => {
+
+        const prevList = [...todoList] 
         setTodoList(prev => prev.filter(item => item.id !== id))
+        try {
+        await todoApi.delete(id)    
+        } catch (error) {
+            console.log("xóa task thất bại: ",error)
+            setTodoList(prevList) // set list cũ nếu fail
+        }
     }
     // -> hàm này chỉ cập nhật state -> return void
     
-    const toggleComplete = (id: number) => {
-        setTodoList(prev => prev.map(item =>
-        {
-            return item.id == id
-            ? {...item,completed: !item.completed}
-            : item
+    const toggleComplete = async(id: number) => {
+        setTodoList(prev => prev.map(item => 
+            item.id === id ?
+            {...item,completed: !item.completed} :
+            item 
+        ))
+        const prev = [...todoList]
+        const target = prev.find(item => item.id === id)
+        if (!target) return; // *
+
+        try {
+            await todoApi.update(id,{completed: !target.completed})
+        } catch (error) {
+            console.log("lỗi thay đổi trạng thái:", error)
         }
-            ))
     }
     
     
@@ -111,7 +121,7 @@ const addTodo = async () => {
         {todoList.map((item, index)=>{
             return <ToDoItem
                     completed={item.completed}
-                    handleToggle={toggleComplete} 
+                    handleToggle={toggleComplete}                    
                     handleDelete={deleteTodo}
                     id={item.id}
                     key={item.id}
